@@ -1,12 +1,5 @@
 package io.brendanmyers.rpiconf;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.UUID;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -18,6 +11,20 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.UUID;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+
 public class MainActivity extends Activity {
 
     BluetoothSocket mmSocket;
@@ -25,7 +32,7 @@ public class MainActivity extends Activity {
     Spinner devicesSpinner;
     Button refreshDevicesButton;
     TextView ssidTextView;
-    TextView pskTextView;
+    TextView passphraseTextView;
     Button startButton;
     TextView messageTextView;
 
@@ -41,8 +48,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         ssidTextView = (TextView) findViewById(R.id.ssid_text);
-        pskTextView = (TextView) findViewById(R.id.psk_text);
         messageTextView = (TextView) findViewById(R.id.messages_text);
+        passphraseTextView = (TextView) findViewById(R.id.passphrase_text);
 
         devicesSpinner = (Spinner) findViewById(R.id.devices_spinner);
 
@@ -60,7 +67,19 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String ssid = ssidTextView.getText().toString();
-                String psk = pskTextView.getText().toString();
+                String passphrase = passphraseTextView.getText().toString();
+                String psk = "";
+
+                PBEKeySpec key_spec = new PBEKeySpec(passphrase.toCharArray(),
+                        ssid.getBytes(), 4096, 256);
+
+                try {
+                    SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+                    try {
+                        SecretKey psk_key = skf.generateSecret(key_spec);
+                        psk = Utils.bytesToHex(psk_key.getEncoded()).toString().toLowerCase();
+                    } catch (InvalidKeySpecException e) {}
+                } catch (NoSuchAlgorithmException e) {}
 
                 BluetoothDevice device = (BluetoothDevice) devicesSpinner.getSelectedItem();
                 (new Thread(new workerThread(ssid, psk, device))).start();
