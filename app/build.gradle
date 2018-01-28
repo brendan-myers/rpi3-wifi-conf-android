@@ -5,7 +5,7 @@ android {
     buildToolsVersion "27.0.3"
 
     defaultConfig {
-        applicationId "io.skygrid.bluetoothtest"
+        applicationId "io.craftbox.rpiconf"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1

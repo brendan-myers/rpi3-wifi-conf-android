@@ -1,4 +1,4 @@
-package io.brendanmyers.rpiconf;
+package io.craftbox.rpiconf;
 
 public class Utils {
   final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();

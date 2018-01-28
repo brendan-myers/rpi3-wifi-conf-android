@@ -1,4 +1,4 @@
-package io.brendanmyers.rpiconf;
+package io.craftbox.rpiconf;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
